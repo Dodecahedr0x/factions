@@ -1,3 +1,6 @@
 [submodule "contracts/contracts/rarity"]
 	path = contracts/contracts/rarity
 	url = https://github.com/Dodecahedr0x/factions
+[submodule "contracts/rarity"]
+	path = contracts/rarity
+	url = https://github.com/Dodecahedr0x/factions
