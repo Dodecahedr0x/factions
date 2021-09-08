@@ -76,6 +76,7 @@ contract Factions {
         else if(index == 3) return "The Emeral Enclave";
         else if(index == 4) return "The Loard's Alliance";
         else if(index == 5) return "The Order of the Gauntlet";
+        else return "None";
     }
 
     /// @dev Enrolls a summoner in a faction
