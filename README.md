@@ -1,42 +1,38 @@
-# Advanced Sample Hardhat Project
+![Factions](https://static.wikia.nocookie.net/travelogue/images/7/77/Factions_realms.jpg/revision/latest/scale-to-width-down/840?cb=20170714014105)
 
-This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
+# Factions
 
-The project comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other tools, preconfigured to work with the project code.
+Each summoner can join a faction and fight for it in daily clashes.
+Summoners must pay their faction when they want to clash to get trained.
+Proceeds of trainings are sent to the winning faction of each clash and participants will be able to claim their share.
 
-Try running some of the following tasks:
+## FAQ
 
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-npx hardhat help
-REPORT_GAS=true npx hardhat test
-npx hardhat coverage
-npx hardhat run scripts/deploy.js
-node scripts/deploy.js
-npx eslint '**/*.js'
-npx eslint '**/*.js' --fix
-npx prettier '**/*.{json,sol,md}' --check
-npx prettier '**/*.{json,sol,md}' --write
-npx solhint 'contracts/**/*.sol'
-npx solhint 'contracts/**/*.sol' --fix
-```
+- How do I do anything?
 
-# Etherscan verification
+> For now, use [Ftmscan](https://ftmscan.com/) to interact with a contract.
 
-To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Ropsten.
+- What's necessary to join the next clash?
 
-In this project, copy the .env.template file to a file named .env, and then edit it to fill in the details. Enter your Etherscan API key, your Ropsten node URL (eg from Alchemy), and the private key of the account which will send the deployment transaction. With a valid .env file in place, first deploy your contract:
+> 1. Enroll your summoner
+> 2. Make him ready. This will take your summoner and will prevent you from sending him to adventures.
+> 3. Wait for the next clash
+> 4. ???
 
-```shell
-hardhat run --network ropsten scripts/deploy.js
-```
+- How do faction fight?
 
-Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_ADDRESS` in this command:
+> The faction with the highest power wins and takes the proceeds of trainings from all other faction. Members of this faction can then take their share of the profits
 
-```shell
-npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
-```
+- How is faction power determined?
+
+> Each member adds his skills to his faction's skills. The amount added is `summoner's skill level * summoner's attribute value for the dominant attribute of the skill * summoner's level`, for each skill of the summoner.
+
+## Installation
+
+### Prerequisites
+
+- [Hardhat](https://hardhat.org/getting-started/#installation)
+
+### Instructions
+
+1. `yarn install`
