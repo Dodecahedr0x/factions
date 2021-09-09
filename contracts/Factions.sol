@@ -157,7 +157,7 @@ contract Factions {
 
     /// @dev Sends many summoner to fight for the faction.
     /// @param summoners Summoners ID
-    function readyManySummoner(uint[] calldata summoners) public payable {
+    function readyManySummoners(uint[] calldata summoners) public payable {
         uint len = summoners.length;
         require(msg.value >= TRIBUTE * len, "Factions: did not pay tribute");
         for (uint i = 0; i < len; i++) {
@@ -167,7 +167,7 @@ contract Factions {
 
     /// @dev Retrieve many sent summoner
     /// @param summoners Summoner ID
-    function retrieveManySummoner(uint[] calldata summoners) public {
+    function retrieveManySummoners(uint[] calldata summoners) public {
         uint len = summoners.length;
         for (uint i = 0; i < len; i++) {
             retrieveOneSummoner(summoners[i]);
@@ -175,7 +175,7 @@ contract Factions {
     }
 
     /// @dev Retrieve number of summoners ready belonging to player
-    function getOwnedSummonerAtIndex(address player) public view returns (uint number) {
+    function getOwnedSummoners(address player) public view returns (uint number) {
         return ownedSummoners[player].length();
     }
 
@@ -238,7 +238,7 @@ contract Factions {
 
     /// @dev Receive the share of tribute for many summoner
     /// @param summoners Summoners IDs
-    function receiveManyTributeShare(uint[] calldata summoners) public {
+    function receiveManyTributeShares(uint[] calldata summoners) public {
         uint len = summoners.length;
         for (uint i = 0; i < len; i++) {
             receiveOneTributeShare(summoners[i]);

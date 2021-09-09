@@ -90,17 +90,64 @@ describe("Factions", async function () {
     expect(await rarity.ownerOf(summoner1)).to.equal(ownerAddress);
     expect(await rarity.balanceOf(ownerAddress)).to.equal(initialBalance);
 
-    await factions.readyManySummoner([summoner1, summoner2], {
+    await factions.readyManySummoners([summoner1, summoner2], {
       value: TRIBUTE.mul(2),
     });
     expect(await rarity.ownerOf(summoner1)).to.equal(factions.address);
     expect(await rarity.ownerOf(summoner2)).to.equal(factions.address);
     expect(await rarity.balanceOf(ownerAddress)).to.equal(initialBalance - 2);
 
-    await factions.retrieveManySummoner([summoner1, summoner2]);
+    await factions.retrieveManySummoners([summoner1, summoner2]);
     expect(await rarity.ownerOf(summoner1)).to.equal(ownerAddress);
     expect(await rarity.ownerOf(summoner2)).to.equal(ownerAddress);
     expect(await rarity.balanceOf(ownerAddress)).to.equal(initialBalance);
+  });
+
+  it("Should list summoners sent by the player", async function () {
+    const Factions = await ethers.getContractFactory("Factions");
+    const rarity = await ethers.getContractAt("rarity", rarityAddress);
+
+    const attributes = await ethers.getContractAt(
+      "rarity_attributes",
+      rarityAttributesAddress
+    );
+    const skills = await ethers.getContractAt(
+      "rarity_skills",
+      raritySkillsAddress
+    );
+    const factions = await Factions.deploy();
+    await factions.deployed();
+
+    const TRIBUTE = await factions.TRIBUTE();
+
+    const mintedSummoner = 10;
+    let summoners: number[] = [];
+    for (let i = 0; i < mintedSummoner; i++) {
+      let result = await (await rarity.summon(1)).wait();
+      const summoner = ethers.BigNumber.from(result.events[0].topics[3]);
+      await attributes.point_buy(summoner, 17, 12, 17, 8, 8, 10);
+      await factions.enroll(summoner, 0);
+      const skills1 = [
+        0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      ];
+      await skills.set_skills(summoner, skills1);
+      summoners.push(summoner.toNumber());
+    }
+
+    const ownerAddress = await accounts[0].getAddress();
+
+    await rarity.setApprovalForAll(factions.address, true);
+
+    await factions.readyManySummoners(summoners, { value: TRIBUTE.mul(summoners.length) });
+
+    const toFetch = (await factions.getOwnedSummoners(ownerAddress)).toNumber()
+    let result: number[] = []
+    for(let i = 0; i < toFetch; i++) {
+      result.push((await factions.getOwnedSummonerAtIndex(ownerAddress, i)).toNumber())
+    }
+    
+    expect(JSON.stringify(result)).to.equal(JSON.stringify(summoners))
   });
 
   it("Should let summoners earn from their won clash", async function () {
@@ -142,7 +189,7 @@ describe("Factions", async function () {
 
     await rarity.setApprovalForAll(factions.address, true);
 
-    await factions.readyManySummoner([summoner1, summoner2], {
+    await factions.readyManySummoners([summoner1, summoner2], {
       value: TRIBUTE.mul(2),
     });
 
@@ -160,8 +207,8 @@ describe("Factions", async function () {
 
     await increaseTime(60 * 60 * 24);
 
-    await factions.retrieveManySummoner([summoner1, summoner2]);
-    await factions.readyManySummoner([summoner1, summoner2], {
+    await factions.retrieveManySummoners([summoner1, summoner2]);
+    await factions.readyManySummoners([summoner1, summoner2], {
       value: TRIBUTE.mul(2),
     });
     await factions.retrieveOneSummoner(summoner1); // Make sure faction 1 wins
@@ -228,7 +275,7 @@ describe("Factions", async function () {
 
     await rarity.setApprovalForAll(factions.address, true);
 
-    await factions.readyManySummoner(summoners, {
+    await factions.readyManySummoners(summoners, {
       value: TRIBUTE.mul(summoners.length),
     });
 
@@ -242,6 +289,8 @@ describe("Factions", async function () {
     await factions.receiveOneTributeShare(summoners[0]);
     expect(
       await (await ethers.getSigner(factions.address)).getBalance()
-    ).to.equal(balanceBefore1.sub(TRIBUTE.mul(tributesPaid / membersPerFaction)));
+    ).to.equal(
+      balanceBefore1.sub(TRIBUTE.mul(tributesPaid / membersPerFaction))
+    );
   });
 });
