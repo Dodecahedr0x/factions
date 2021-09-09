@@ -176,4 +176,72 @@ describe("Factions", async function () {
       await (await ethers.getSigner(factions.address)).getBalance()
     ).to.equal(balanceBefore2.sub(TRIBUTE.mul(2)));
   });
+
+  it("Should split tribute between members of the winning faction", async function () {
+    const Factions = await ethers.getContractFactory("Factions");
+    const rarity = await ethers.getContractAt("rarity", rarityAddress);
+
+    const attributes = await ethers.getContractAt(
+      "rarity_attributes",
+      rarityAttributesAddress
+    );
+    const skills = await ethers.getContractAt(
+      "rarity_skills",
+      raritySkillsAddress
+    );
+    const factions = await Factions.deploy();
+    await factions.deployed();
+
+    const TRIBUTE = await factions.TRIBUTE();
+
+    let summoners = [];
+    const membersPerFaction = 2;
+    // winning faction
+    for (let i = 0; i < membersPerFaction; i++) {
+      let result = await (await rarity.summon(1)).wait();
+      const summoner = ethers.BigNumber.from(result.events[0].topics[3]);
+      await attributes.point_buy(summoner, 17, 12, 17, 8, 8, 10);
+      await factions.enroll(summoner, 0);
+      const skills1 = [
+        0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      ];
+      await skills.set_skills(summoner, skills1);
+      summoners.push(summoner);
+    }
+
+    // losing factions
+    for (let f = 1; f < 5; f++) {
+      for (let i = 0; i < membersPerFaction; i++) {
+        let result = await (await rarity.summon(2)).wait();
+        const summoner = ethers.BigNumber.from(result.events[0].topics[3]);
+        await attributes.point_buy(summoner, 17, 12, 17, 10, 8, 8);
+        await factions.enroll(summoner, f);
+        const skills2 = [
+          3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        ];
+        await skills.set_skills(summoner, skills2);
+        summoners.push(summoner);
+      }
+    }
+
+    await rarity.setApprovalForAll(factions.address, true);
+
+    await factions.readyManySummoner(summoners, {
+      value: TRIBUTE.mul(summoners.length),
+    });
+
+    await factions.startClash();
+
+    const tributesPaid = 5 * membersPerFaction;
+
+    const balanceBefore1 = await (
+      await ethers.getSigner(factions.address)
+    ).getBalance();
+    await factions.receiveOneTributeShare(summoners[0]);
+    expect(
+      await (await ethers.getSigner(factions.address)).getBalance()
+    ).to.equal(balanceBefore1.sub(TRIBUTE.mul(tributesPaid / membersPerFaction)));
+  });
 });
