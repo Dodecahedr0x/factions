@@ -2,16 +2,16 @@
 pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 import "hardhat/console.sol";
 
-interface rarity {
+interface rarity is IERC721 {
     function summon(uint _class) external;
     function level(uint) external view returns (uint);
-    function transferFrom(address from, address to, uint256 tokenId) external;
 }
 
-interface attributes {
+interface rarity_attributes {
     function point_buy(uint _summoner, uint32 _str, uint32 _dex, uint32 _const, uint32 _int, uint32 _wis, uint32 _cha) external;
     function character_created(uint) external view returns (bool);
     function ability_scores(uint) external view returns (uint32,uint32,uint32,uint32,uint32,uint32);
@@ -31,6 +31,7 @@ interface codex_skills {
 }
 
 interface rarity_skills {
+    function set_skills(uint _summoner, uint8[36] memory _skills) external;
     function get_skills(uint _summoner) external view returns (uint8[36] memory);
 }
 
@@ -41,7 +42,7 @@ contract Factions {
     uint public constant TRIBUTE = 10 ** 17;
     
     rarity public constant _rarity =  rarity(0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb);
-    attributes constant _attributes = attributes(0xB5F5AF1087A8DA62A23b08C00C6ec9af21F397a1);
+    rarity_attributes constant _attributes = rarity_attributes(0xB5F5AF1087A8DA62A23b08C00C6ec9af21F397a1);
     rarity_skills  public constant _skills = rarity_skills(0x6292f3fB422e393342f257857e744d43b1Ae7e70);
     codex_skills constant _codex_skills = codex_skills(0x67ae39a2Ee91D7258a86CD901B17527e19E493B3);
 
@@ -64,7 +65,7 @@ contract Factions {
     mapping(address => EnumerableSet.UintSet) ownedSummoners;
     mapping(uint => bool) public readyMembers;
     uint[5] public numberOfMembersReady;
-    uint[5][36] public factionSkills;
+    uint[36][5] public factionSkills;
     uint public lastClash;
     mapping(uint => uint[36]) private _skillsWhenReady;
 
@@ -105,14 +106,15 @@ contract Factions {
         require(msg.value >= TRIBUTE, "Factions: did not pay tribute");
 
         numberOfMembersReady[enrollment.faction]++;
+        treasuries[enrollment.faction] += TRIBUTE;
         ownedSummoners[msg.sender].add(summoner);
 
         uint8[36] memory summonerSkills = _skills.get_skills(summoner);
         uint[36] memory boostedSummonerSkills;
         uint level = _rarity.level(summoner);
+        (uint32 str, uint32 dex, uint32 con, uint32 intel, uint32 wis, uint32 cha) = _attributes.ability_scores(summoner);
         for(uint i=0; i<36; i++) {
-            (,, uint attribute_id,,,,,) = _codex_skills.skill_by_id(i);
-            (uint32 str, uint32 dex,uint32 con, uint32 intel, uint32 wis, uint32 cha) = _attributes.ability_scores(summoner);
+            (,, uint attribute_id,,,,,) = _codex_skills.skill_by_id(i + 1);
 
             if(attribute_id == 1) {
                 boostedSummonerSkills[i] = uint(summonerSkills[i]) * level * uint(str);
@@ -188,7 +190,7 @@ contract Factions {
             (,,, uint synergy,,,,) = _codex_skills.skill_by_id(i);
 
             if(synergy != 0)
-                power += factionSkills[faction][i] + factionSkills[faction][synergy];
+                power += factionSkills[faction][i] + factionSkills[faction][synergy - 1];
             else
                 power += factionSkills[faction][i];
         }
@@ -212,33 +214,34 @@ contract Factions {
 
         uint wonAmount;
         for(uint8 i=0; i<5; i++) {
+            wonAmount += treasuries[i];
             if(i != winner) {
-                wonAmount += treasuries[i];
                 treasuries[i] = 0;
             }
         }
-        treasuries[winner] += wonAmount;
+        treasuries[winner] = wonAmount;
         totalTributes[winner] += wonAmount;
     }
 
     /// @dev Receive the share of tribute for a summoner
     /// @param summoner Summoner ID
-    function retrieveOneTributeShare(uint summoner) public {
+    function receiveOneTributeShare(uint summoner) public {
         require(ownedSummoners[msg.sender].contains(summoner), "Factions: summoner not owned");
 
         Enrollment memory enrollment = enrollments[summoner];
-        uint amountReceived = (totalTributes[enrollment.faction] - enrollment.collected) / numberOfMembersReady[enrollment.faction];
-
+        uint amountToReceive = (totalTributes[enrollment.faction] - enrollment.collected) / numberOfMembersReady[enrollment.faction];
+        
+        treasuries[enrollment.faction] -= amountToReceive;
         enrollments[summoner].collected = totalTributes[enrollment.faction];
-        payable(msg.sender).transfer(amountReceived);
+        payable(msg.sender).transfer(amountToReceive);
     }
 
     /// @dev Receive the share of tribute for many summoner
     /// @param summoners Summoners IDs
-    function retrieveManyTributeShare(uint[] calldata summoners) public {
+    function receiveManyTributeShare(uint[] calldata summoners) public {
         uint len = summoners.length;
         for (uint i = 0; i < len; i++) {
-            retrieveOneTributeShare(summoners[i]);
+            receiveOneTributeShare(summoners[i]);
         }
     }
 }
