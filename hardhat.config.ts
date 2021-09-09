@@ -13,7 +13,8 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: "https://rpc.ftm.tools/"
+        url: "https://rpc.ftm.tools/",
+        blockNumber: 16728268 
       }
     },
     mainnet: {
