@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for contracts\Factions.sol</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">contracts/</a> Factions.sol
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">85.42% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>82/96</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">61.54% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>32/52</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">88.24% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>15/17</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">95.18% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>79/83</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26×</span>
+<span class="cline-any cline-yes">25×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27×</span>
+<span class="cline-any cline-yes">27×</span>
+<span class="cline-any cline-yes">27×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27×</span>
+<span class="cline-any cline-yes">27×</span>
+<span class="cline-any cline-yes">27×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27×</span>
+<span class="cline-any cline-yes">27×</span>
+<span class="cline-any cline-yes">27×</span>
+<span class="cline-any cline-yes">27×</span>
+<span class="cline-any cline-yes">27×</span>
+<span class="cline-any cline-yes">972×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">972×</span>
+<span class="cline-any cline-yes">81×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">243×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">216×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">162×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">216×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">972×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">216×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">26×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">10×</span>
+<span class="cline-any cline-yes">360×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">360×</span>
+<span class="cline-any cline-yes">110×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">250×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">10×</span>
+<span class="cline-any cline-yes">10×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">10×</span>
+<span class="cline-any cline-yes">10×</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">//SPDX-License-Identifier: Unlicense
+pragma solidity ^0.8.7;
+&nbsp;
+import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+&nbsp;
+import "hardhat/console.sol";
+&nbsp;
+interface rarity is IERC721 {
+    function summon(uint _class) external;
+    function level(uint) external view returns (uint);
+}
+&nbsp;
+interface rarity_attributes {
+    function point_buy(uint _summoner, uint32 _str, uint32 _dex, uint32 _const, uint32 _int, uint32 _wis, uint32 _cha) external;
+    function character_created(uint) external view returns (bool);
+    function ability_scores(uint) external view returns (uint32,uint32,uint32,uint32,uint32,uint32);
+}
+&nbsp;
+interface codex_skills {
+    function skill_by_id(uint) external view returns (
+        uint id,
+        string memory name,
+        uint attribute_id,
+        uint synergy,
+        bool retry,
+        bool armor_check_penalty,
+        string memory check,
+        string memory action
+    );
+}
+&nbsp;
+interface rarity_skills {
+    function set_skills(uint _summoner, uint8[36] memory _skills) external;
+    function get_skills(uint _summoner) external view returns (uint8[36] memory);
+}
+&nbsp;
+/// @dev Factions let summoners form groups of their most skilled adventurers to fight other factions
+contract Factions {
+    using EnumerableSet for EnumerableSet.UintSet;
+&nbsp;
+    address public owner;
+    uint public TRIBUTE = 10 ** 17;
+    uint public CLASH_DELAY = 1 days;
+    uint public FACTION_CHANGE_DELAY = 1 weeks;
+&nbsp;
+    constructor() {
+        owner = msg.sender;
+    }
+&nbsp;
+    function setTribute(uint tribute) external {
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(msg.sender == owner, "Factions: owner");
+        TRIBUTE = tribute;
+    }
+&nbsp;
+    function setClashDelay(uint delay) external {
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(msg.sender == owner, "Factions: owner");
+        CLASH_DELAY = delay;
+    }
+&nbsp;
+    function setFactionChangeDelay(uint delay) external {
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(msg.sender == owner, "Factions: owner");
+        FACTION_CHANGE_DELAY = delay;
+    }
+&nbsp;
+    function setOwner(address newOwner) external {
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(msg.sender == owner, "Factions: owner");
+        owner = newOwner;
+    }
+    
+    rarity public constant _rarity =  rarity(0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb);
+    rarity_attributes constant _attributes = rarity_attributes(0xB5F5AF1087A8DA62A23b08C00C6ec9af21F397a1);
+    rarity_skills  public constant _skills = rarity_skills(0x6292f3fB422e393342f257857e744d43b1Ae7e70);
+    codex_skills constant _codex_skills = codex_skills(0x67ae39a2Ee91D7258a86CD901B17527e19E493B3);
+&nbsp;
+    /// @dev Enrollments describe the faction the summoner joined
+    /// @param faction is the index of the faction joined
+    /// @param date is the date the summoner joined
+    /// @param collected is the reverse amount of collected tributes
+    struct Enrollment {
+        uint8 faction;
+        uint date;
+        uint collected;
+    }
+ 
+    /// @dev Amount collected as tributes by each faction
+    uint[5] public totalTributes;
+    /// @dev Amounts collected by each faction for summoner training
+    uint[5] public treasuries;
+    mapping(uint =&gt; Enrollment) public enrollments;
+&nbsp;
+    mapping(address =&gt; EnumerableSet.UintSet) ownedSummoners;
+    mapping(uint =&gt; bool) public readyMembers;
+    uint[5] public numberOfMembersReady;
+    uint[36][5] public factionSkills;
+    uint public lastClash;
+    mapping(uint =&gt; uint[36]) private _skillsWhenReady;
+&nbsp;
+    receive() external payable {}
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function factionName(uint index) public pure returns (string memory) {</span>
+<span class="cstat-no" title="statement not covered" >        if(index == 1) <span class="cstat-no" title="statement not covered" >return "The Harpers";</span></span>
+        else <span class="cstat-no" title="statement not covered" >if(index == 2) <span class="cstat-no" title="statement not covered" >return "The Order of the Gauntlet";</span></span>
+        else <span class="cstat-no" title="statement not covered" >if(index == 3) <span class="cstat-no" title="statement not covered" >return "The Emeral Enclave";</span></span>
+        else <span class="cstat-no" title="statement not covered" >if(index == 4) <span class="cstat-no" title="statement not covered" >return "The Loard's Alliance";</span></span>
+        else <span class="cstat-no" title="statement not covered" >if(index == 5) <span class="cstat-no" title="statement not covered" >return "The Order of the Gauntlet";</span></span>
+        else <span class="cstat-no" title="statement not covered" >return "None";</span>
+    }
+&nbsp;
+    /// @dev Enrolls a summoner in a faction
+    /// @param summoner Summoner ID
+    /// @param faction The index of the faction
+    function enroll(uint summoner, uint8 faction) external {
+        require(_attributes.character_created(summoner), "Factions: summoner does not exist");
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(enrollments[summoner].date + FACTION_CHANGE_DELAY &lt; block.timestamp, "Factions: changing too fast");
+&nbsp;
+        Enrollment memory enrollment = Enrollment({
+            faction: faction,
+            date: block.timestamp,
+            collected: totalTributes[faction]
+        });
+&nbsp;
+        enrollments[summoner] = enrollment;
+    }
+&nbsp;
+    /// @dev Sends one summoner to fight for the faction. Needs approval
+    /// @param summoner Summoner ID
+    function readyOneSummoner(uint summoner) public payable {
+        Enrollment memory enrollment = enrollments[summoner];
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(enrollment.date &gt; 0, "Factions: not enrolled");
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(msg.value &gt;= TRIBUTE, "Factions: did not pay tribute");
+&nbsp;
+        numberOfMembersReady[enrollment.faction]++;
+        treasuries[enrollment.faction] += TRIBUTE;
+        ownedSummoners[msg.sender].add(summoner);
+&nbsp;
+        uint8[36] memory summonerSkills = _skills.get_skills(summoner);
+        uint[36] memory boostedSummonerSkills;
+        uint level = _rarity.level(summoner);
+        (uint32 str, uint32 dex, uint32 con, uint32 intel, uint32 wis, uint32 cha) = _attributes.ability_scores(summoner);
+        for(uint i=0; i&lt;36; i++) {
+            (,, uint attribute_id,,,,,) = _codex_skills.skill_by_id(i + 1);
+&nbsp;
+            if(attribute_id == 1) {
+                boostedSummonerSkills[i] = uint(summonerSkills[i]) * level * uint(str);
+            } else if(attribute_id == 2) {
+                boostedSummonerSkills[i] = uint(summonerSkills[i]) * level * uint(dex);
+            } else if(attribute_id == 3) {
+                boostedSummonerSkills[i] = uint(summonerSkills[i]) * level * uint(con);
+            } else if(attribute_id == 4) {
+                boostedSummonerSkills[i] = uint(summonerSkills[i]) * level * uint(intel);
+            } else if(attribute_id == 5) {
+                boostedSummonerSkills[i] = uint(summonerSkills[i]) * level * uint(wis);
+            } else if(attribute_id == 6) {
+                boostedSummonerSkills[i] = uint(summonerSkills[i]) * level * uint(cha);
+            }
+&nbsp;
+            factionSkills[enrollment.faction][i] += boostedSummonerSkills[i];
+        }
+        _skillsWhenReady[summoner] = boostedSummonerSkills;
+&nbsp;
+        _rarity.transferFrom(msg.sender, address(this), summoner);
+    }
+&nbsp;
+    /// @dev Retrieve a sent summoner
+    /// @param summoner Summoner ID
+    function retrieveOneSummoner(uint summoner) public {
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(ownedSummoners[msg.sender].contains(summoner), "Factions: not owned");
+&nbsp;
+        uint8 faction = enrollments[summoner].faction;
+&nbsp;
+        numberOfMembersReady[faction]--;
+        ownedSummoners[msg.sender].remove(summoner);
+&nbsp;
+        uint[36] memory summonerSkills = _skillsWhenReady[summoner];
+        for(uint i=0; i&lt;36; i++) {
+            factionSkills[faction][i] -= summonerSkills[i];
+        }
+&nbsp;
+        _rarity.transferFrom(address(this), msg.sender, summoner);
+    }
+&nbsp;
+    /// @dev Sends many summoner to fight for the faction.
+    /// @param summoners Summoners ID
+    function readyManySummoners(uint[] calldata summoners) public payable {
+        uint len = summoners.length;
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(msg.value &gt;= TRIBUTE * len, "Factions: did not pay tribute");
+        for (uint i = 0; i &lt; len; i++) {
+            readyOneSummoner(summoners[i]);
+        }
+    }
+&nbsp;
+    /// @dev Retrieve many sent summoner
+    /// @param summoners Summoner ID
+    function retrieveManySummoners(uint[] calldata summoners) public {
+        uint len = summoners.length;
+        for (uint i = 0; i &lt; len; i++) {
+            retrieveOneSummoner(summoners[i]);
+        }
+    }
+&nbsp;
+    /// @dev Retrieve number of summoners ready belonging to player
+    function getOwnedSummoners(address player) public view returns (uint number) {
+        return ownedSummoners[player].length();
+    }
+&nbsp;
+    /// @dev ID of a sent summoner
+    function getOwnedSummonerAtIndex(address player, uint index) public view returns (uint summoner) {
+        return ownedSummoners[player].at(index);
+    }
+&nbsp;
+    /// @dev Retrieve a sent summoner
+    function factionPower(uint8 faction) public view returns (uint power) {
+        for(uint i=0; i&lt;36; i++) {
+            (,,, uint synergy,,,,) = _codex_skills.skill_by_id(i);
+&nbsp;
+            if(synergy != 0)
+                power += factionSkills[faction][i] + factionSkills[faction][synergy - 1];
+            else
+                power += factionSkills[faction][i];
+        }
+    }
+&nbsp;
+    /// @dev Starts a clash
+    function startClash() public {
+        require(lastClash + 1 days &lt; block.timestamp, "Factions: too early to clash");
+        lastClash = block.timestamp;
+        
+        uint8 winner;
+        uint maxPower;
+&nbsp;
+        for(uint8 i=0; i&lt;5; i++) {
+            uint power = factionPower(i);
+            if(maxPower &lt; power) {
+                winner = i;
+                maxPower = power;
+            }
+        }
+&nbsp;
+        uint wonAmount;
+        for(uint8 i=0; i&lt;5; i++) {
+            wonAmount += treasuries[i];
+            if(i != winner) {
+                treasuries[i] = 0;
+            }
+        }
+        treasuries[winner] = wonAmount;
+        totalTributes[winner] += wonAmount;
+    }
+&nbsp;
+    /// @dev Receive the share of tribute for a summoner
+    /// @param summoner Summoner ID
+    function receiveOneTributeShare(uint summoner) public {
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(ownedSummoners[msg.sender].contains(summoner), "Factions: summoner not owned");
+&nbsp;
+        Enrollment memory enrollment = enrollments[summoner];
+        uint amountToReceive = (totalTributes[enrollment.faction] - enrollment.collected) / numberOfMembersReady[enrollment.faction];
+        
+        treasuries[enrollment.faction] -= amountToReceive;
+        enrollments[summoner].collected = totalTributes[enrollment.faction];
+        payable(msg.sender).transfer(amountToReceive);
+    }
+&nbsp;
+    /// @dev Receive the share of tribute for many summoner
+    /// @param summoners Summoners IDs
+<span class="fstat-no" title="function not covered" >    function receiveManyTributeShares(uint[] calldata summoners) public {</span>
+<span class="cstat-no" title="statement not covered" >        uint len = summoners.length;</span>
+<span class="cstat-no" title="statement not covered" >        for (uint i = 0; i &lt; len; i++) {</span>
+<span class="cstat-no" title="statement not covered" >            receiveOneTributeShare(summoners[i])</span>;
+        }
+    }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Fri Sep 10 2021 21:26:35 GMT+0200 (heure d’été d’Europe centrale)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

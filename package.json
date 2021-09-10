@@ -1,5 +1,10 @@
 {
-  "name": "hardhat-project",
+  "name": "factions",
+  "scripts": {
+    "test": "npx hardhat test",
+    "coverage": "npx hardhat coverage",
+    "deploy:mainnet": "npx hardhat deploy --network mainnet --export exports/mainnet.json"
+  },
   "dependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-etherscan": "^2.1.6",

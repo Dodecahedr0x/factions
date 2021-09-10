@@ -11,9 +11,39 @@ const codexSkillsAddress = "0x67ae39a2Ee91D7258a86CD901B17527e19E493B3";
 
 describe("Factions", async function () {
   let accounts: Signer[];
+  const faction1 = 1
+  const faction2 = 2
 
   beforeEach(async function () {
     accounts = await ethers.getSigners();
+  });
+
+  it("Should update settings", async function () {
+    const Factions = await ethers.getContractFactory("Factions");
+    const rarity = await ethers.getContractAt("rarity", rarityAddress);
+
+    const factions = await Factions.deploy();
+    await factions.deployed();
+
+    const oldTribute = await factions.TRIBUTE()
+    await factions.setTribute(oldTribute.mul(2));
+    expect(await factions.TRIBUTE()).to.equal(oldTribute.mul(2))
+    await assertRevert(factions.connect(accounts[1]).setTribute())
+
+    const oldClashDelay = await factions.CLASH_DELAY()
+    await factions.setClashDelay(oldClashDelay.mul(2));
+    expect(await factions.CLASH_DELAY()).to.equal(oldClashDelay.mul(2))
+    await assertRevert(factions.connect(accounts[1]).setClashDelay())
+
+    const oldFactionChangeDelay = await factions.FACTION_CHANGE_DELAY()
+    await factions.setFactionChangeDelay(oldFactionChangeDelay.mul(2));
+    expect(await factions.FACTION_CHANGE_DELAY()).to.equal(oldFactionChangeDelay.mul(2))
+    await assertRevert(factions.connect(accounts[1]).setFactionChangeDelay())
+
+    const newOwner = await accounts[1].getAddress()
+    await factions.setOwner(newOwner);
+    expect(await factions.owner()).to.equal(newOwner)
+    await assertRevert(factions.setOwner())
   });
 
   it("Should enroll created summoners", async function () {
@@ -31,11 +61,11 @@ describe("Factions", async function () {
     const result = await (await rarity.summon(1)).wait();
     const summoner = ethers.BigNumber.from(result.events[0].topics[3]);
 
-    await assertRevert(factions.enroll(summoner, 0));
+    await assertRevert(factions.enroll(summoner, faction1));
 
     await attributes.point_buy(summoner, 17, 12, 17, 8, 8, 10);
 
-    await factions.enroll(summoner, 0);
+    await factions.enroll(summoner, faction1);
   });
 
   it("Should take ready summoners from the player", async function () {
@@ -58,7 +88,7 @@ describe("Factions", async function () {
     let result = await (await rarity.summon(1)).wait();
     const summoner1 = ethers.BigNumber.from(result.events[0].topics[3]);
     await attributes.point_buy(summoner1, 17, 12, 17, 8, 8, 10);
-    await factions.enroll(summoner1, 0);
+    await factions.enroll(summoner1, faction1);
     const skills1 = [
       0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -68,7 +98,7 @@ describe("Factions", async function () {
     result = await (await rarity.summon(2)).wait();
     const summoner2 = ethers.BigNumber.from(result.events[0].topics[3]);
     await attributes.point_buy(summoner2, 17, 12, 17, 8, 10, 8);
-    await factions.enroll(summoner2, 1);
+    await factions.enroll(summoner2, faction2);
     const skills2 = [
       3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -126,7 +156,7 @@ describe("Factions", async function () {
       let result = await (await rarity.summon(1)).wait();
       const summoner = ethers.BigNumber.from(result.events[0].topics[3]);
       await attributes.point_buy(summoner, 17, 12, 17, 8, 8, 10);
-      await factions.enroll(summoner, 0);
+      await factions.enroll(summoner, faction1);
       const skills1 = [
         0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -142,12 +172,10 @@ describe("Factions", async function () {
     await factions.readyManySummoners(summoners, { value: TRIBUTE.mul(summoners.length) });
 
     const toFetch = (await factions.getOwnedSummoners(ownerAddress)).toNumber()
-    let result: number[] = []
+    expect(toFetch).to.equal(summoners.length);
     for(let i = 0; i < toFetch; i++) {
-      result.push((await factions.getOwnedSummonerAtIndex(ownerAddress, i)).toNumber())
+      expect(await factions.getOwnedSummonerAtIndex(ownerAddress, i)).to.equal(summoners[i])
     }
-    
-    expect(JSON.stringify(result)).to.equal(JSON.stringify(summoners))
   });
 
   it("Should let summoners earn from their won clash", async function () {
@@ -170,7 +198,7 @@ describe("Factions", async function () {
     let result = await (await rarity.summon(1)).wait();
     const summoner1 = ethers.BigNumber.from(result.events[0].topics[3]);
     await attributes.point_buy(summoner1, 17, 12, 17, 8, 8, 10);
-    await factions.enroll(summoner1, 0);
+    await factions.enroll(summoner1, faction1);
     const skills1 = [
       0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -180,7 +208,7 @@ describe("Factions", async function () {
     result = await (await rarity.summon(2)).wait();
     const summoner2 = ethers.BigNumber.from(result.events[0].topics[3]);
     await attributes.point_buy(summoner2, 17, 12, 17, 10, 8, 8);
-    await factions.enroll(summoner2, 1);
+    await factions.enroll(summoner2, faction2);
     const skills2 = [
       3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -248,7 +276,7 @@ describe("Factions", async function () {
       let result = await (await rarity.summon(1)).wait();
       const summoner = ethers.BigNumber.from(result.events[0].topics[3]);
       await attributes.point_buy(summoner, 17, 12, 17, 8, 8, 10);
-      await factions.enroll(summoner, 0);
+      await factions.enroll(summoner, faction1);
       const skills1 = [
         0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -258,7 +286,7 @@ describe("Factions", async function () {
     }
 
     // losing factions
-    for (let f = 1; f < 5; f++) {
+    for (let f = faction2; f <= 5; f++) {
       for (let i = 0; i < membersPerFaction; i++) {
         let result = await (await rarity.summon(2)).wait();
         const summoner = ethers.BigNumber.from(result.events[0].topics[3]);

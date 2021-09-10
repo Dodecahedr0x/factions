@@ -4,8 +4,6 @@ pragma solidity ^0.8.7;
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-import "hardhat/console.sol";
-
 interface rarity is IERC721 {
     function summon(uint _class) external;
     function level(uint) external view returns (uint);
@@ -39,7 +37,34 @@ interface rarity_skills {
 contract Factions {
     using EnumerableSet for EnumerableSet.UintSet;
 
-    uint public constant TRIBUTE = 10 ** 17;
+    address public owner;
+    uint public TRIBUTE = 10 ** 17;
+    uint public CLASH_DELAY = 1 days;
+    uint public FACTION_CHANGE_DELAY = 1 weeks;
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    function setTribute(uint tribute) external {
+        require(msg.sender == owner, "Factions: owner");
+        TRIBUTE = tribute;
+    }
+
+    function setClashDelay(uint delay) external {
+        require(msg.sender == owner, "Factions: owner");
+        CLASH_DELAY = delay;
+    }
+
+    function setFactionChangeDelay(uint delay) external {
+        require(msg.sender == owner, "Factions: owner");
+        FACTION_CHANGE_DELAY = delay;
+    }
+
+    function setOwner(address newOwner) external {
+        require(msg.sender == owner, "Factions: owner");
+        owner = newOwner;
+    }
     
     rarity public constant _rarity =  rarity(0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb);
     rarity_attributes constant _attributes = rarity_attributes(0xB5F5AF1087A8DA62A23b08C00C6ec9af21F397a1);
@@ -49,11 +74,9 @@ contract Factions {
     /// @dev Enrollments describe the faction the summoner joined
     /// @param faction is the index of the faction joined
     /// @param date is the date the summoner joined
-    /// @param collected is the reverse amount of collected tributes
     struct Enrollment {
         uint8 faction;
         uint date;
-        uint collected;
     }
  
     /// @dev Amount collected as tributes by each faction
@@ -61,6 +84,7 @@ contract Factions {
     /// @dev Amounts collected by each faction for summoner training
     uint[5] public treasuries;
     mapping(uint => Enrollment) public enrollments;
+    mapping(uint => uint) public collected;
 
     mapping(address => EnumerableSet.UintSet) ownedSummoners;
     mapping(uint => bool) public readyMembers;
@@ -68,8 +92,6 @@ contract Factions {
     uint[36][5] public factionSkills;
     uint public lastClash;
     mapping(uint => uint[36]) private _skillsWhenReady;
-
-    constructor() {}
 
     receive() external payable {}
 
@@ -86,13 +108,13 @@ contract Factions {
     /// @param summoner Summoner ID
     /// @param faction The index of the faction
     function enroll(uint summoner, uint8 faction) external {
+        require(1 <= faction && faction <= 5, "Factions: bad index");
         require(_attributes.character_created(summoner), "Factions: summoner does not exist");
-        require(enrollments[summoner].date + 1 weeks < block.timestamp, "Factions: changing too fast");
+        require(enrollments[summoner].date + FACTION_CHANGE_DELAY < block.timestamp, "Factions: changing too fast");
 
         Enrollment memory enrollment = Enrollment({
             faction: faction,
-            date: block.timestamp,
-            collected: totalTributes[faction]
+            date: block.timestamp
         });
 
         enrollments[summoner] = enrollment;
@@ -105,8 +127,10 @@ contract Factions {
         require(enrollment.date > 0, "Factions: not enrolled");
         require(msg.value >= TRIBUTE, "Factions: did not pay tribute");
 
-        numberOfMembersReady[enrollment.faction]++;
-        treasuries[enrollment.faction] += TRIBUTE;
+        uint factionIndex = enrollment.faction - 1;
+        numberOfMembersReady[factionIndex]++;
+        treasuries[factionIndex] += TRIBUTE;
+        collected[summoner] = totalTributes[factionIndex];
         ownedSummoners[msg.sender].add(summoner);
 
         uint8[36] memory summonerSkills = _skills.get_skills(summoner);
@@ -130,7 +154,7 @@ contract Factions {
                 boostedSummonerSkills[i] = uint(summonerSkills[i]) * level * uint(cha);
             }
 
-            factionSkills[enrollment.faction][i] += boostedSummonerSkills[i];
+            factionSkills[factionIndex][i] += boostedSummonerSkills[i];
         }
         _skillsWhenReady[summoner] = boostedSummonerSkills;
 
@@ -142,14 +166,17 @@ contract Factions {
     function retrieveOneSummoner(uint summoner) public {
         require(ownedSummoners[msg.sender].contains(summoner), "Factions: not owned");
 
-        uint8 faction = enrollments[summoner].faction;
+        uint8 factionIndex = enrollments[summoner].faction - 1;
 
-        numberOfMembersReady[faction]--;
+        numberOfMembersReady[factionIndex]--;
         ownedSummoners[msg.sender].remove(summoner);
+
+        if(collected[summoner] != totalTributes[factionIndex])
+            receiveOneTributeShare(summoner);
 
         uint[36] memory summonerSkills = _skillsWhenReady[summoner];
         for(uint i=0; i<36; i++) {
-            factionSkills[faction][i] -= summonerSkills[i];
+            factionSkills[factionIndex][i] -= summonerSkills[i];
         }
 
         _rarity.transferFrom(address(this), msg.sender, summoner);
@@ -228,11 +255,11 @@ contract Factions {
     function receiveOneTributeShare(uint summoner) public {
         require(ownedSummoners[msg.sender].contains(summoner), "Factions: summoner not owned");
 
-        Enrollment memory enrollment = enrollments[summoner];
-        uint amountToReceive = (totalTributes[enrollment.faction] - enrollment.collected) / numberOfMembersReady[enrollment.faction];
+        uint factionIndex = enrollments[summoner].faction - 1;
+        uint amountToReceive = (totalTributes[factionIndex] - collected[summoner]) / numberOfMembersReady[factionIndex];
         
-        treasuries[enrollment.faction] -= amountToReceive;
-        enrollments[summoner].collected = totalTributes[enrollment.faction];
+        treasuries[factionIndex] -= amountToReceive;
+        collected[summoner] = totalTributes[factionIndex];
         payable(msg.sender).transfer(amountToReceive);
     }
 
