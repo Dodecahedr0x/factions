@@ -84,6 +84,7 @@ contract Factions {
     /// @dev Amounts collected by each faction for summoner training
     uint[5] public treasuries;
     mapping(uint => Enrollment) public enrollments;
+    uint[5] public enrolled;
     mapping(uint => uint) public collected;
 
     mapping(address => EnumerableSet.UintSet) ownedSummoners;
@@ -110,7 +111,12 @@ contract Factions {
     function enroll(uint summoner, uint8 faction) external {
         require(1 <= faction && faction <= 5, "Factions: bad index");
         require(_attributes.character_created(summoner), "Factions: summoner does not exist");
-        require(enrollments[summoner].date + FACTION_CHANGE_DELAY < block.timestamp, "Factions: changing too fast");
+
+        Enrollment memory pastEnrollment = enrollments[summoner];
+        require(pastEnrollment.date + FACTION_CHANGE_DELAY < block.timestamp, "Factions: changing too fast");
+
+        if(pastEnrollment.faction != 0)
+            enrolled[pastEnrollment.faction - 1]--;
 
         Enrollment memory enrollment = Enrollment({
             faction: faction,
@@ -118,6 +124,7 @@ contract Factions {
         });
 
         enrollments[summoner] = enrollment;
+        enrolled[faction - 1]++;
     }
 
     /// @dev Sends one summoner to fight for the faction. Needs approval

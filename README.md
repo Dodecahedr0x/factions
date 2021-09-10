@@ -6,7 +6,7 @@ Each summoner can join a faction and fight for it in daily clashes.
 Summoners must pay their faction when they want to clash to get trained.
 Proceeds of trainings are sent to the winning faction of each clash and participants will be able to claim their share.
 
-The contract is deployed at [0x4617a5EF4fe2B06D3A136D6c3BC7e1a1110b8BfC](https://ftmscan.com/address/0x4617a5EF4fe2B06D3A136D6c3BC7e1a1110b8BfC).
+The contract is deployed at [0xdFDC587fdBe6BCF9a3a9f59A97Cc1d69a8935f09](https://ftmscan.com/address/0xdFDC587fdBe6BCF9a3a9f59A97Cc1d69a8935f09).
 
 ## FAQ
 

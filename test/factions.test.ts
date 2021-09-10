@@ -66,6 +66,16 @@ describe("Factions", async function () {
     await attributes.point_buy(summoner, 17, 12, 17, 8, 8, 10);
 
     await factions.enroll(summoner, faction1);
+    expect(await factions.enrolled(faction1 - 1)).to.equal(1)
+
+    await assertRevert(factions.enroll(summoner, faction2))
+
+    const switchDelay = (await factions.FACTION_CHANGE_DELAY()).toNumber()
+    await increaseTime(switchDelay)
+
+    await factions.enroll(summoner, faction2)
+    expect(await factions.enrolled(faction1 - 1)).to.equal(0)
+    expect(await factions.enrolled(faction2 - 1)).to.equal(1)
   });
 
   it("Should take ready summoners from the player", async function () {
