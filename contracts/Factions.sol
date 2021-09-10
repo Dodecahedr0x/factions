@@ -1,8 +1,8 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.7;
 
-import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "./EnumerableSet.sol";
+import "./IERC721.sol";
 
 interface rarity is IERC721 {
     function summon(uint _class) external;
