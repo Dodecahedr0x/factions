@@ -3,18 +3,18 @@ import { DeployFunction } from "hardhat-deploy/types";
 
 const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments } = hre;
-  const { deploy } = deployments;
+  const { deploy, get } = deployments;
   const accounts = await hre.getUnnamedAccounts();
 
-  console.log("Available accounts:", accounts);
+  console.log("Deploying Hill Battlefield");
 
-  console.log("Deploying to", hre.network.name, "from", accounts[0]);
+  const deployedFactions = await get("Factions");
 
-  await deploy("Factions", {
+  await deploy("HillBattlefield", {
     from: accounts[0],
-    args: [],
+    args: [deployedFactions.address],
     log: true,
   });
 };
 export default deploy;
-deploy.tags = ["factions"];
+deploy.tags = ["hill", "battlefield"];

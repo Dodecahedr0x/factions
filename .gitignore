@@ -6,3 +6,5 @@ cache
 artifacts
 exports
 deployments
+coverage
+coverage.json

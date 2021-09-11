@@ -3,7 +3,8 @@
   "scripts": {
     "test": "npx hardhat test",
     "coverage": "npx hardhat coverage",
-    "deploy:mainnet": "npx hardhat deploy --network mainnet --export exports/mainnet.json"
+    "deploy:mainnet": "npx hardhat deploy --network mainnet --export exports/mainnet.json",
+    "deploy:mainnet-battlefields": "npx hardhat deploy --network mainnet --export exports/mainnet.json --tags battlefield"
   },
   "dependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",

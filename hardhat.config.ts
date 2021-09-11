@@ -12,7 +12,15 @@ import "solidity-coverage";
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: "0.8.7",
+  solidity: {
+    version: "0.8.7",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 20000
+      }
+    }
+  },
   networks: {
     hardhat: {
       forking: {
@@ -33,4 +41,7 @@ module.exports = {
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
   },
+  mocha: {
+    timeout: 30000
+  }
 };
