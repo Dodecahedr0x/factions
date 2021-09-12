@@ -57,9 +57,9 @@ contract Factions is IFactions {
     function factionName(uint index) public pure override returns (string memory) {
         if(index == 1) return "The Harpers";
         else if(index == 2) return "The Order of the Gauntlet";
-        else if(index == 3) return "The Emeral Enclave";
-        else if(index == 4) return "The Loard's Alliance";
-        else if(index == 5) return "The Order of the Gauntlet";
+        else if(index == 3) return "The Emerald Enclave";
+        else if(index == 4) return "The Lords' Alliance";
+        else if(index == 5) return "The Zhentarim";
         else return "None";
     }
 

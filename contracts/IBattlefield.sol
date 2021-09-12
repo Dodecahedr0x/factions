@@ -25,6 +25,8 @@ interface IBattlefield {
     function factionPower(uint8 faction) external view returns (uint power);
     function powerIncrease(uint summoner) external view returns (uint power);
     function startClash() external;
+    function nextClash() external view returns (uint date);
+    function lastWinner() external view returns (uint8 faction);
 
     function receiveOneTributeShare(uint summoner) external;
     function receiveManyTributeShares(uint[] calldata summoners) external;

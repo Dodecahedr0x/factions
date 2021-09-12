@@ -6,10 +6,10 @@ Each summoner can join a faction and fight for it on a battlefield in daily clas
 Summoners must pay their faction when they want to clash to get trained.
 Proceeds of trainings are sent to the winning faction of each clash and participants will be able to claim their share.
 
-Factions are deployed at [0x60260D219929D4aA58DEBB59e1011Eb6F403e8b7](https://ftmscan.com/address/0x60260D219929D4aA58DEBB59e1011Eb6F403e8b7).
+Factions are deployed at [0x6EE97D7dDD3c12eEC1E8956c566F395C72D6BE4f](https://ftmscan.com/address/0x6EE97D7dDD3c12eEC1E8956c566F395C72D6BE4f).
 The following battlefields are deployed:
 
-- [*Battle on the hill*](https://ftmscan.com/address/0xd39e8460eAe81864F433659Be363c06Da3880AE1)
+- [*Battle on the hill*](https://ftmscan.com/address/0xe48E06d03fACc814CFd83Bc79E06b4457b379868)
 
 ## FAQ
 

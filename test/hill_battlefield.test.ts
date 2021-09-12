@@ -69,6 +69,9 @@ describe("HillBattlefield", async function () {
     ];
     await skills.set_skills(summoner1, skills1);
 
+    const powerIncrease = await battlefield.powerIncrease(summoner1);
+    expect(powerIncrease.toNumber()).to.equal(51);
+
     result = await (await rarity.summon(2)).wait();
     const summoner2 = ethers.BigNumber.from(result.events[0].topics[3]);
     await attributes.point_buy(summoner2, 17, 12, 17, 8, 10, 8);
@@ -89,10 +92,13 @@ describe("HillBattlefield", async function () {
     await battlefield.readyOneSummoner(summoner1, { value: tribute });
     expect(await rarity.ownerOf(summoner1)).to.equal(battlefield.address);
     expect(await rarity.balanceOf(ownerAddress)).to.equal(initialBalance - 1);
+    expect(await battlefield.treasury(faction1)).to.equal(tribute);
+    expect(await battlefield.factionPower(faction1)).to.equal(powerIncrease);
 
     await battlefield.retrieveOneSummoner(summoner1);
     expect(await rarity.ownerOf(summoner1)).to.equal(ownerAddress);
     expect(await rarity.balanceOf(ownerAddress)).to.equal(initialBalance);
+    expect(await battlefield.treasury(faction1)).to.equal(tribute);
 
     await battlefield.readyManySummoners([summoner1, summoner2], {
       value: tribute.mul(2),
@@ -100,11 +106,15 @@ describe("HillBattlefield", async function () {
     expect(await rarity.ownerOf(summoner1)).to.equal(battlefield.address);
     expect(await rarity.ownerOf(summoner2)).to.equal(battlefield.address);
     expect(await rarity.balanceOf(ownerAddress)).to.equal(initialBalance - 2);
+    expect(await battlefield.treasury(faction1)).to.equal(tribute.mul(2));
+    expect(await battlefield.treasury(faction2)).to.equal(tribute);
 
     await battlefield.retrieveManySummoners([summoner1, summoner2]);
     expect(await rarity.ownerOf(summoner1)).to.equal(ownerAddress);
     expect(await rarity.ownerOf(summoner2)).to.equal(ownerAddress);
     expect(await rarity.balanceOf(ownerAddress)).to.equal(initialBalance);
+    expect(await battlefield.treasury(faction1)).to.equal(tribute.mul(2));
+    expect(await battlefield.treasury(faction2)).to.equal(tribute);
   });
 
   it("Should list summoners sent by the player", async function () {
@@ -179,11 +189,17 @@ describe("HillBattlefield", async function () {
       await ethers.getSigner(battlefield.address)
     ).getBalance();
     expect(balanceAfterReady).to.equal(initialBalance.add(tribute.mul(2)));
+    expect(await battlefield.treasury(faction1)).to.equal(tribute);
+    expect(await battlefield.treasury(faction2)).to.equal(tribute);
+
+    const collectableBefore = await battlefield.availableToCollect(summoner1);
 
     await battlefield.startClash();
 
     const collectable = await battlefield.availableToCollect(summoner1);
-    expect(collectable).to.equal(tribute.mul(2));
+    expect(collectable).to.equal(collectableBefore.add(tribute.mul(2)));
+    expect(await battlefield.treasury(faction1)).to.equal(tribute.mul(2));
+    expect(await battlefield.treasury(faction2)).to.equal(tribute.mul(0));
 
     await battlefield.receiveOneTributeShare(summoner1);
     const balanceAfterCollect = await (
@@ -199,9 +215,12 @@ describe("HillBattlefield", async function () {
     await battlefield.readyManySummoners([summoner1, summoner2], {
       value: tribute.mul(2),
     });
-    await battlefield.retrieveOneSummoner(summoner1); // Make sure faction 1 wins
+    await battlefield.retrieveOneSummoner(summoner1); // Make sure faction 2 wins
 
     await battlefield.startClash();
+    expect(await battlefield.lastWinner()).to.equal(faction1);
+    expect(await battlefield.treasury(faction1)).to.equal(tribute.mul(0));
+    expect(await battlefield.treasury(faction2)).to.equal(tribute.mul(2));
 
     const balanceBefore2 = await (
       await ethers.getSigner(battlefield.address)
@@ -214,7 +233,7 @@ describe("HillBattlefield", async function () {
 
   it("Should split tribute between members of the winning faction", async function () {
     let summoners = [];
-    const membersPerFaction = 2;
+    const membersPerFaction = 3;
     // winning faction
     for (let i = 0; i < membersPerFaction; i++) {
       let result = await (await rarity.summon(1)).wait();
@@ -263,6 +282,16 @@ describe("HillBattlefield", async function () {
       await (await ethers.getSigner(battlefield.address)).getBalance()
     ).to.equal(
       balanceBefore1.sub(tribute.mul(tributesPaid / membersPerFaction))
+    );
+
+    const balanceBefore2 = await (
+      await ethers.getSigner(battlefield.address)
+    ).getBalance();
+    await battlefield.receiveManyTributeShares([summoners[1], summoners[2]]);
+    expect(
+      await (await ethers.getSigner(battlefield.address)).getBalance()
+    ).to.equal(
+      balanceBefore2.sub(tribute.mul(tributesPaid / membersPerFaction).mul(2))
     );
   });
 });

@@ -13,9 +13,9 @@ import "./Factions.sol";
 contract HillBattlefield is IBattlefield {
     using EnumerableSet for EnumerableSet.UintSet;
 
-    address _owner;
-    uint _tribute = 10 ** 17;
-    uint _clashDelay = 1 days;
+    address private _owner;
+    uint private _tribute = 10 ** 17;
+    uint private _clashDelay = 1 days;
 
     function owner() external view override returns (address) {
         return _owner;
@@ -75,16 +75,17 @@ contract HillBattlefield is IBattlefield {
     mapping(address => EnumerableSet.UintSet) ownedSummoners;
     mapping(uint => bool) public readyMembers;
     uint[5] public numberOfMembersReady;
-    uint[36][5] public factionSkills;
-    uint public lastClash;
+    uint[36][5] private _factionSkills;
+    uint private _nextClash;
+    uint8 private _lastWinner;
     mapping(uint => uint[36]) private _skillsWhenReady;
 
     function treasury(uint8 faction) external view override returns (uint) {
-        require(1 <= faction && faction <= 5, "HillBattlefield: bad index");
+        require(1 <= faction && faction <= 5, "HillBF: index");
         return treasuries[faction - 1];
     }
     function summonersOnTheField(uint8 faction) external view override returns (uint number) {
-        require(1 <= faction && faction <= 5, "HillBattlefield: bad index");
+        require(1 <= faction && faction <= 5, "HillBF: index");
         return numberOfMembersReady[faction - 1];
     }
     function availableToCollect(uint summoner) external view override returns (uint amount) {
@@ -97,8 +98,8 @@ contract HillBattlefield is IBattlefield {
     /// @param summoner Summoner ID
     function readyOneSummoner(uint summoner) public override payable {
         (uint8 faction, uint date) = _factions.enrollments(summoner);
-        require(date > 0, "Factions: not enrolled");
-        require(msg.value >= _tribute, "Factions: did not pay tribute");
+        require(date > 0, "HillBF: enrolled");
+        require(msg.value >= _tribute, "HillBF: tribute");
 
         uint factionIndex = faction - 1;
         numberOfMembersReady[factionIndex]++;
@@ -128,7 +129,7 @@ contract HillBattlefield is IBattlefield {
                 boostedSummonerSkills[i] = uint(summonerSkills[i]) * level * uint(cha);
             }
 
-            factionSkills[factionIndex][i] += boostedSummonerSkills[i];
+            _factionSkills[factionIndex][i] += boostedSummonerSkills[i];
         }
         _skillsWhenReady[summoner] = boostedSummonerSkills;
         }
@@ -139,7 +140,7 @@ contract HillBattlefield is IBattlefield {
     /// @dev Retrieve a sent summoner
     /// @param summoner Summoner ID
     function retrieveOneSummoner(uint summoner) public override {
-        require(ownedSummoners[msg.sender].contains(summoner), "Factions: not owned");
+        require(ownedSummoners[msg.sender].contains(summoner), "HillBF: not owned");
 
         (uint8 faction, ) = _factions.enrollments(summoner);
         uint8 factionIndex = faction - 1;
@@ -152,7 +153,7 @@ contract HillBattlefield is IBattlefield {
 
         uint[36] memory summonerSkills = _skillsWhenReady[summoner];
         for(uint i=0; i<36; i++) {
-            factionSkills[factionIndex][i] -= summonerSkills[i];
+            _factionSkills[factionIndex][i] -= summonerSkills[i];
         }
 
         _rarity.transferFrom(address(this), msg.sender, summoner);
@@ -162,7 +163,7 @@ contract HillBattlefield is IBattlefield {
     /// @param summoners Summoners ID
     function readyManySummoners(uint[] calldata summoners) public override payable {
         uint len = summoners.length;
-        require(msg.value >= _tribute * len, "Factions: did not pay tribute");
+        require(msg.value >= _tribute * len, "HillBF: no tribute");
         for (uint i = 0; i < len; i++) {
             readyOneSummoner(summoners[i]);
         }
@@ -190,7 +191,6 @@ contract HillBattlefield is IBattlefield {
     function _power(uint[36] memory skills) internal view returns(uint power) {
         for(uint i=0; i<36; i++) {
             (,,, uint synergy,,,,) = _codex_skills.skill_by_id(i);
-
             if(synergy != 0)
                 power += skills[i] + skills[synergy - 1];
             else
@@ -199,8 +199,9 @@ contract HillBattlefield is IBattlefield {
     }
 
     /// @dev Retrieve a sent summoner
-    function factionPower(uint8 faction) public view override returns (uint power) {
-        return _power(factionSkills[faction]);
+    function factionPower(uint8 faction) external view override returns (uint power) {
+        require(1 <= faction && faction <= 5, "HillBF: index");
+        return _power(_factionSkills[faction - 1]);
     }
 
     /// @dev Gives the potential power increase of a summoner
@@ -209,7 +210,7 @@ contract HillBattlefield is IBattlefield {
         uint8 factionIndex = faction - 1;
         
         uint8[36] memory summonerSkills = _skills.get_skills(summoner);
-        uint[36] memory tempSkills = factionSkills[factionIndex];
+        uint[36] memory tempSkills = _factionSkills[factionIndex];
         uint level = _rarity.level(summoner);
         (uint32 str, uint32 dex, uint32 con, uint32 intel, uint32 wis, uint32 cha) = _attributes.ability_scores(summoner);
 
@@ -236,14 +237,14 @@ contract HillBattlefield is IBattlefield {
 
     /// @dev Starts a clash
     function startClash() public override {
-        require(lastClash + 1 days < block.timestamp, "Factions: too early to clash");
-        lastClash = block.timestamp;
+        require(_nextClash < block.timestamp, "HillBF: too early");
+        _nextClash = block.timestamp + _clashDelay;
         
         uint8 winner;
         uint maxPower;
 
         for(uint8 i=0; i<5; i++) {
-            uint power = factionPower(i);
+            uint power = _power(_factionSkills[i]);
             if(maxPower < power) {
                 winner = i;
                 maxPower = power;
@@ -259,12 +260,20 @@ contract HillBattlefield is IBattlefield {
         }
         treasuries[winner] = wonAmount;
         totalTributes[winner] += wonAmount;
+        _lastWinner = winner;
+    }
+
+    function nextClash() external view override returns (uint date) {
+        return _nextClash;
+    }
+    function lastWinner() external view override returns (uint8 faction) {
+        return _lastWinner;
     }
 
     /// @dev Receive the share of tribute for a summoner
     /// @param summoner Summoner ID
     function receiveOneTributeShare(uint summoner) public override {
-        require(ownedSummoners[msg.sender].contains(summoner), "Factions: summoner not owned");
+        require(ownedSummoners[msg.sender].contains(summoner), "HillBF: not owned");
 
     (uint8 faction, ) = _factions.enrollments(summoner);
         uint factionIndex = faction - 1;
