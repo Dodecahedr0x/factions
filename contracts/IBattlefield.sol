@@ -19,10 +19,10 @@ interface IBattlefield {
     function readyManySummoners(uint[] calldata summoners) external payable;
     function retrieveManySummoners(uint[] calldata summoners) external;
 
-    function getOwnedSummoners(address player) external returns (uint number);
-    function getOwnedSummonerAtIndex(address player, uint index) external returns (uint summoner);
+    function getOwnedSummoners(address player) external view returns (uint number);
+    function getOwnedSummonerAtIndex(address player, uint index) external view returns (uint summoner);
 
-    function factionPower(uint8 faction) external returns (uint power);
+    function factionPower(uint8 faction) external view returns (uint power);
     function powerIncrease(uint summoner) external view returns (uint power);
     function startClash() external;
 
