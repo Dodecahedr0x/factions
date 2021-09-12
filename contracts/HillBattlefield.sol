@@ -218,17 +218,17 @@ contract HillBattlefield is IBattlefield {
             (,, uint attribute_id,,,,,) = _codex_skills.skill_by_id(i + 1);
 
             if(attribute_id == 1) {
-                tempSkills[i] = uint(summonerSkills[i]) * level * uint(str);
+                tempSkills[i] += uint(summonerSkills[i]) * level * uint(str);
             } else if(attribute_id == 2) {
-                tempSkills[i] = uint(summonerSkills[i]) * level * uint(dex);
+                tempSkills[i] += uint(summonerSkills[i]) * level * uint(dex);
             } else if(attribute_id == 3) {
-                tempSkills[i] = uint(summonerSkills[i]) * level * uint(con);
+                tempSkills[i] += uint(summonerSkills[i]) * level * uint(con);
             } else if(attribute_id == 4) {
-                tempSkills[i] = uint(summonerSkills[i]) * level * uint(intel);
+                tempSkills[i] += uint(summonerSkills[i]) * level * uint(intel);
             } else if(attribute_id == 5) {
-                tempSkills[i] = uint(summonerSkills[i]) * level * uint(wis);
+                tempSkills[i] += uint(summonerSkills[i]) * level * uint(wis);
             } else if(attribute_id == 6) {
-                tempSkills[i] = uint(summonerSkills[i]) * level * uint(cha);
+                tempSkills[i] += uint(summonerSkills[i]) * level * uint(cha);
             }
         }
 
