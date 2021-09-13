@@ -23,7 +23,7 @@ interface IBattlefield {
     function getOwnedSummonerAtIndex(address player, uint index) external view returns (uint summoner);
 
     function factionPower(uint8 faction) external view returns (uint power);
-    function powerIncrease(uint summoner) external view returns (uint power);
+    function powerIfAdded(uint summoner) external view returns (uint power);
     function startClash() external;
     function nextClash() external view returns (uint date);
     function lastWinner() external view returns (uint8 faction);

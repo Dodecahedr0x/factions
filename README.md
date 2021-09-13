@@ -9,7 +9,7 @@ Proceeds of trainings are sent to the winning faction of each clash and particip
 Factions are deployed at [0x6EE97D7dDD3c12eEC1E8956c566F395C72D6BE4f](https://ftmscan.com/address/0x6EE97D7dDD3c12eEC1E8956c566F395C72D6BE4f).
 The following battlefields are deployed:
 
-- [*Battle on the hill*](https://ftmscan.com/address/0xfAb923AE679F32fad29C1D4dEBDCcFc2C8823d7a)
+- *Battle on the hill*: [0x3CecdE18a31aE66767143f5E46A78cAa1f53F335](https://ftmscan.com/address/0x3CecdE18a31aE66767143f5E46A78cAa1f53F335)
 
 ## FAQ
 

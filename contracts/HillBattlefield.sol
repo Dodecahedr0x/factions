@@ -46,9 +46,8 @@ contract HillBattlefield is IBattlefield {
     
     IRarity public constant _rarity =  IRarity(0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb);
     IRarityAttributes constant _attributes = IRarityAttributes(0xB5F5AF1087A8DA62A23b08C00C6ec9af21F397a1);
-    IRaritySkills  public constant _skills = IRaritySkills(0x6292f3fB422e393342f257857e744d43b1Ae7e70);
+    IRaritySkills  public constant _skills = IRaritySkills(0x51C0B29A1d84611373BA301706c6B4b72283C80F);
     IRaritySkillsCodex constant _codex_skills = IRaritySkillsCodex(0x67ae39a2Ee91D7258a86CD901B17527e19E493B3);
-
     Factions public _factions;
 
     constructor(address factions) {
@@ -67,13 +66,13 @@ contract HillBattlefield is IBattlefield {
     }
  
     /// @dev Amount collected as tributes by each faction
-    uint[5] public totalTributes;
+    uint[5] private _totalTributes;
     /// @dev Amounts collected by each faction for summoner training
-    uint[5] public treasuries;
-    mapping(uint => uint) public collected;
+    uint[5] private _treasuries;
+    /// @dev Timestamp of the last clash a summoner collected
+    mapping(uint => uint) private _collected;
 
     mapping(address => EnumerableSet.UintSet) ownedSummoners;
-    mapping(uint => bool) public readyMembers;
     uint[5] public numberOfMembersReady;
     uint[36][5] private _factionSkills;
     uint private _nextClash;
@@ -82,16 +81,18 @@ contract HillBattlefield is IBattlefield {
 
     function treasury(uint8 faction) external view override returns (uint) {
         require(1 <= faction && faction <= 5, "HillBF: index");
-        return treasuries[faction - 1];
+        return _treasuries[faction - 1];
     }
     function summonersOnTheField(uint8 faction) external view override returns (uint number) {
         require(1 <= faction && faction <= 5, "HillBF: index");
         return numberOfMembersReady[faction - 1];
     }
     function availableToCollect(uint summoner) external view override returns (uint amount) {
+        if(_collected[summoner] >= _nextClash) return 0;
+
         (uint8 faction, ) = _factions.enrollments(summoner);
         uint factionIndex = faction - 1;
-        return (totalTributes[factionIndex] - collected[summoner]) / numberOfMembersReady[factionIndex];
+        return _totalTributes[factionIndex] / numberOfMembersReady[factionIndex];
     }
 
     /// @dev Sends one summoner to fight for the faction. Needs approval
@@ -103,8 +104,8 @@ contract HillBattlefield is IBattlefield {
 
         uint factionIndex = faction - 1;
         numberOfMembersReady[factionIndex]++;
-        treasuries[factionIndex] += _tribute;
-        collected[summoner] = totalTributes[factionIndex];
+        _treasuries[factionIndex] += _tribute;
+        _collected[summoner] = _nextClash;
         ownedSummoners[msg.sender].add(summoner);
 
         { // stack too deep
@@ -147,9 +148,6 @@ contract HillBattlefield is IBattlefield {
 
         numberOfMembersReady[factionIndex]--;
         ownedSummoners[msg.sender].remove(summoner);
-
-        if(collected[summoner] != totalTributes[factionIndex])
-            receiveOneTributeShare(summoner);
 
         uint[36] memory summonerSkills = _skillsWhenReady[summoner];
         for(uint i=0; i<36; i++) {
@@ -205,7 +203,7 @@ contract HillBattlefield is IBattlefield {
     }
 
     /// @dev Gives the potential power increase of a summoner
-    function powerIncrease(uint summoner) external view override returns (uint power) {
+    function powerIfAdded(uint summoner) external view override returns (uint power) {
         (uint8 faction, ) = _factions.enrollments(summoner);
         uint8 factionIndex = faction - 1;
         
@@ -232,7 +230,7 @@ contract HillBattlefield is IBattlefield {
             }
         }
 
-        return _power(tempSkills) - _power(_factionSkills[factionIndex]);
+        return _power(tempSkills);
     }
 
     /// @dev Starts a clash
@@ -259,13 +257,13 @@ contract HillBattlefield is IBattlefield {
         if(hasWinner) {
             uint wonAmount;
             for(uint8 i=0; i<5; i++) {
-                wonAmount += treasuries[i];
+                wonAmount += _treasuries[i];
                 if(i != winner) {
-                    treasuries[i] = 0;
+                    _treasuries[i] = 0;
                 }
             }
-            treasuries[winner] = wonAmount;
-            totalTributes[winner] += wonAmount;
+            _treasuries[winner] = wonAmount;
+            _totalTributes[winner] = wonAmount;
             _lastWinner = winner + 1;
         } else {
             _lastWinner = 0;
@@ -282,14 +280,15 @@ contract HillBattlefield is IBattlefield {
     /// @dev Receive the share of tribute for a summoner
     /// @param summoner Summoner ID
     function receiveOneTributeShare(uint summoner) public override {
+        require(_collected[summoner] < _nextClash, "HillBF: nothing to collect");
         require(ownedSummoners[msg.sender].contains(summoner), "HillBF: not owned");
 
-    (uint8 faction, ) = _factions.enrollments(summoner);
+        (uint8 faction, ) = _factions.enrollments(summoner);
         uint factionIndex = faction - 1;
-        uint amountToReceive = (totalTributes[factionIndex] - collected[summoner]) / numberOfMembersReady[factionIndex];
+        uint amountToReceive = _totalTributes[factionIndex] / numberOfMembersReady[factionIndex];
         
-        treasuries[factionIndex] -= amountToReceive;
-        collected[summoner] = totalTributes[factionIndex];
+        _treasuries[factionIndex] -= amountToReceive;
+        _collected[summoner] = _nextClash;
         payable(msg.sender).transfer(amountToReceive);
     }
 

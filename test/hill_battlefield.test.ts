@@ -6,7 +6,7 @@ import increaseTime from "./helpers/increaseTime";
 
 const rarityAddress = "0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb";
 const rarityAttributesAddress = "0xB5F5AF1087A8DA62A23b08C00C6ec9af21F397a1";
-const raritySkillsAddress = "0x6292f3fB422e393342f257857e744d43b1Ae7e70";
+const raritySkillsAddress = "0x51C0B29A1d84611373BA301706c6B4b72283C80F";
 const codexSkillsAddress = "0x67ae39a2Ee91D7258a86CD901B17527e19E493B3";
 
 describe("HillBattlefield", async function () {
@@ -69,8 +69,8 @@ describe("HillBattlefield", async function () {
     ];
     await skills.set_skills(summoner1, skills1);
 
-    const powerIncrease = await battlefield.powerIncrease(summoner1);
-    expect(powerIncrease.toNumber()).to.equal(51);
+    const powerIfAdded = await battlefield.powerIfAdded(summoner1);
+    expect(powerIfAdded.toNumber()).to.equal(51);
 
     result = await (await rarity.summon(2)).wait();
     const summoner2 = ethers.BigNumber.from(result.events[0].topics[3]);
@@ -93,7 +93,7 @@ describe("HillBattlefield", async function () {
     expect(await rarity.ownerOf(summoner1)).to.equal(battlefield.address);
     expect(await rarity.balanceOf(ownerAddress)).to.equal(initialBalance - 1);
     expect(await battlefield.treasury(faction1)).to.equal(tribute);
-    expect(await battlefield.factionPower(faction1)).to.equal(powerIncrease);
+    expect(await battlefield.factionPower(faction1)).to.equal(powerIfAdded);
 
     await battlefield.retrieveOneSummoner(summoner1);
     expect(await rarity.ownerOf(summoner1)).to.equal(ownerAddress);
@@ -131,7 +131,7 @@ describe("HillBattlefield", async function () {
       ];
       await skills.set_skills(summoner, skills1);
       summoners.push(summoner.toNumber());
-      expect(await battlefield.powerIncrease(summoner)).to.equal(51);
+      expect(await battlefield.powerIfAdded(summoner)).to.equal(51);
     }
 
     const ownerAddress = await accounts[0].getAddress();
@@ -194,6 +194,7 @@ describe("HillBattlefield", async function () {
     expect(await battlefield.treasury(faction2)).to.equal(tribute);
 
     const collectableBefore = await battlefield.availableToCollect(summoner1);
+    expect(collectableBefore).to.equal(0);
 
     await battlefield.startClash();
 
