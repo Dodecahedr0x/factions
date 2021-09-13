@@ -232,7 +232,7 @@ contract HillBattlefield is IBattlefield {
             }
         }
 
-        return _power(tempSkills);
+        return _power(tempSkills) - _power(_factionSkills[factionIndex]);
     }
 
     /// @dev Starts a clash
@@ -240,27 +240,36 @@ contract HillBattlefield is IBattlefield {
         require(_nextClash < block.timestamp, "HillBF: too early");
         _nextClash = block.timestamp + _clashDelay;
         
+        bool hasWinner;
         uint8 winner;
         uint maxPower;
 
         for(uint8 i=0; i<5; i++) {
             uint power = _power(_factionSkills[i]);
             if(maxPower < power) {
+                hasWinner = true;
                 winner = i;
                 maxPower = power;
+            } else if(maxPower == power && hasWinner) {
+                hasWinner = false;
+                break;
             }
         }
 
-        uint wonAmount;
-        for(uint8 i=0; i<5; i++) {
-            wonAmount += treasuries[i];
-            if(i != winner) {
-                treasuries[i] = 0;
+        if(hasWinner) {
+            uint wonAmount;
+            for(uint8 i=0; i<5; i++) {
+                wonAmount += treasuries[i];
+                if(i != winner) {
+                    treasuries[i] = 0;
+                }
             }
+            treasuries[winner] = wonAmount;
+            totalTributes[winner] += wonAmount;
+            _lastWinner = winner + 1;
+        } else {
+            _lastWinner = 0;
         }
-        treasuries[winner] = wonAmount;
-        totalTributes[winner] += wonAmount;
-        _lastWinner = winner;
     }
 
     function nextClash() external view override returns (uint date) {

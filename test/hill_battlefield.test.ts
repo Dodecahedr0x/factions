@@ -131,6 +131,7 @@ describe("HillBattlefield", async function () {
       ];
       await skills.set_skills(summoner, skills1);
       summoners.push(summoner.toNumber());
+      expect(await battlefield.powerIncrease(summoner)).to.equal(51);
     }
 
     const ownerAddress = await accounts[0].getAddress();
@@ -200,6 +201,7 @@ describe("HillBattlefield", async function () {
     expect(collectable).to.equal(collectableBefore.add(tribute.mul(2)));
     expect(await battlefield.treasury(faction1)).to.equal(tribute.mul(2));
     expect(await battlefield.treasury(faction2)).to.equal(tribute.mul(0));
+    expect(await battlefield.lastWinner()).to.equal(faction1)
 
     await battlefield.receiveOneTributeShare(summoner1);
     const balanceAfterCollect = await (
@@ -218,7 +220,7 @@ describe("HillBattlefield", async function () {
     await battlefield.retrieveOneSummoner(summoner1); // Make sure faction 2 wins
 
     await battlefield.startClash();
-    expect(await battlefield.lastWinner()).to.equal(faction1);
+    expect(await battlefield.lastWinner()).to.equal(faction2);
     expect(await battlefield.treasury(faction1)).to.equal(tribute.mul(0));
     expect(await battlefield.treasury(faction2)).to.equal(tribute.mul(2));
 
@@ -293,5 +295,55 @@ describe("HillBattlefield", async function () {
     ).to.equal(
       balanceBefore2.sub(tribute.mul(tributesPaid / membersPerFaction).mul(2))
     );
+  });
+
+  it("Should not give tribute on a draw", async function () {
+    let summoners = [];
+    const membersPerFaction = 1;
+    // winning faction
+    for (let i = 0; i < membersPerFaction; i++) {
+      let result = await (await rarity.summon(1)).wait();
+      const summoner = ethers.BigNumber.from(result.events[0].topics[3]);
+      await attributes.point_buy(summoner, 17, 12, 17, 8, 8, 10);
+      await factions.enroll(summoner, faction1);
+      const skills1 = [
+        0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      ];
+      await skills.set_skills(summoner, skills1);
+      summoners.push(summoner);
+    }
+
+    for (let f = faction2; f <= 5; f++) {
+      for (let i = 0; i < membersPerFaction; i++) {
+        let result = await (await rarity.summon(2)).wait();
+        const summoner = ethers.BigNumber.from(result.events[0].topics[3]);
+        await attributes.point_buy(summoner, 17, 12, 17, 8, 8, 10);
+        await factions.enroll(summoner, f);
+        const skills1 = [
+          0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        ];
+        await skills.set_skills(summoner, skills1);
+        summoners.push(summoner);
+      }
+    }
+
+    await rarity.setApprovalForAll(battlefield.address, true);
+
+    await battlefield.readyManySummoners(summoners, {
+      value: tribute.mul(summoners.length),
+    });
+
+    await battlefield.startClash();
+
+    expect(await battlefield.lastWinner()).to.equal(0)
+    for(let i=1; i<=5; i++) {
+      expect(
+        await battlefield.treasury(i)
+      ).to.equal(
+        tribute.mul(membersPerFaction)
+      );
+    }
   });
 });
